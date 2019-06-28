@@ -12,6 +12,6 @@ package com.loeffler.webspider;
  *    <em>@Github</em>    github.com/JohnLoeffler
  *    <em>@Bitbucket</em> bitbucket.org/JohnLoeffler
  */
-public class WebSpiderLeg {
+public class WebSpiderLeg extends Thread {
 
 }

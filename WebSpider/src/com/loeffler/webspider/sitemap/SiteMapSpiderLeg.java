@@ -1,6 +1,8 @@
 
 package com.loeffler.webspider.sitemap;
 
+import com.loeffler.webspider.WebSpiderLeg;
+
 /**
  *  <p><strong>SiteMapSpiderLeg</strong></p>
  *  <em>@author</em>  John Loeffler
@@ -12,6 +14,6 @@ package com.loeffler.webspider.sitemap;
  *    <em>@Github</em>    github.com/JohnLoeffler
  *    <em>@Bitbucket</em> bitbucket.org/JohnLoeffler
  */
-public class SiteMapSpiderLeg {
+public class SiteMapSpiderLeg extends WebSpiderLeg {
 
 }

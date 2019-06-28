@@ -151,7 +151,13 @@ public abstract class WebSpider {
    * Queries whether WebSpider has exceeded its timeout limit
    * @return True if timer elapsed time exceeds the timeout limit, else false
    */
-  public boolean              hasTimedOut(){return TimeoutTimer.Elapsed()>TimeoutLimit;}
+  public boolean              hasTimedOut(){
+    if(TimeoutTimer.isActive()){
+      return TimeoutTimer.Elapsed()>TimeoutLimit;
+    }else{
+      return false;
+    }
+  }
   /**
    * Queries whether WebSpider has filled its waiting leg queue to capacity
    * @return True if waiting queue is at or exceeds its capacity, else false

@@ -1,6 +1,8 @@
 package com.loeffler.webspider;
 
-import com.loeffler.utilitylibrary.*;
+import com.loeffler.utilitylibrary.Logging.Logger;
+import com.loeffler.utilitylibrary.Statics;
+import com.loeffler.utilitylibrary.Tools.Timer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

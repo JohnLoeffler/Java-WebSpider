@@ -268,6 +268,9 @@ public abstract class WebSpider {
             + "for %f milliseconds", AverageTimePerLeg), 1);
         return -1;
       }
+      if(this.RunningLegs.size() == 1 && this.WaitingLegs.size() == 0){
+        return -2;
+      }
       return 0;
     }catch(Exception e){
       LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(),

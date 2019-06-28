@@ -1,4 +1,6 @@
 package com.loeffler.webspider.sitemap.siteobjects;
+import com.loeffler.utilitylibrary.Logging.Logger;
+import com.loeffler.utilitylibrary.Statics;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *    <em>@Website</em>   JohnLoeffler.com
  */
 public class SiteMap {
+  protected static Logger LOG = Logger.GetInstance();
   protected Map<Integer, PageData>  WebsiteMap;
   protected int                     NextID;
   protected long                    NumHREFS;
@@ -85,9 +88,16 @@ public class SiteMap {
         bw.newLine();
       }
       StringBuilder sb = new StringBuilder();
-      for(PageData pd : WebsiteMap.values()){
-        lines += pd.HRefs.size();
-        bw.write(pd.toString());
+      try{
+        for(int i =0; i < WebsiteMap.size(); i++){
+          PageData pd = ((PageData[]) WebsiteMap.values().toArray())[i];
+          lines += pd.HRefs.size();
+          bw.write(pd.toString());
+        }
+      }catch(Exception e){
+        LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+          String.format("Exception thrown when covering hashmap to PageData "
+          + "Array to print values: %s", e.getMessage()), 2);
       }
     }catch(IOException ioe){
       //  TODO Add a log message to this IOException 

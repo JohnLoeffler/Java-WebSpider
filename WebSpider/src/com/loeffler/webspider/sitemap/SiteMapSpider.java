@@ -55,6 +55,7 @@ public class SiteMapSpider extends WebSpider{
    */
   @Override
   public long     BeginCrawl(String url){
+    this.Url = url;
     if(!this.isInitialized()){
       return 0L;
       //throw new Exception("WebSpider hasn't been initialized yet!");
@@ -90,10 +91,14 @@ public class SiteMapSpider extends WebSpider{
             MakeLegFromUrl(currentUrl, DomainUrl);
             break;
           case 2:
+            if(TimeoutTimer.isActive()){ TimeoutTimer.Stop(); }
+            MakeLegFromUrl(url, DomainUrl);
+            break;
+          case 3:
             if(!TimeoutTimer.isActive()){ TimeoutTimer.Start(); }
             MoveWaitingLegsToRunningLegs();
             break;
-          case 3:
+          case 4:
             if(!TimeoutTimer.isActive()){ TimeoutTimer.Start(); }
             Thread.sleep(AverageTimePerLeg);
             break;
@@ -110,21 +115,23 @@ public class SiteMapSpider extends WebSpider{
       }  
         
       //  If SiteMapSpider has timed out
-      if(this.hasTimedOut()){
-        double time = ((double)TimeoutTimer.Elapsed())/1000.0;
-        try{
-          //  Try to Shutdown the Spider properly
-          this.ShutdownSpider();
-        }catch(Exception e){
+      if(this.TimeoutTimer.isActive()){
+        if(this.hasTimedOut()){
+          double time = ((double)TimeoutTimer.Elapsed())/1000.0;
+          try{
+            //  Try to Shutdown the Spider properly
+            this.ShutdownSpider();
+          }catch(Exception e){
+            LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+              String.format("Exception thrown while attempting to properly "
+              + "shutdown spider: %s", e.getMessage()), 3);
+          }
           LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-            String.format("Exception thrown while attempting to properly "
-            + "shutdown spider: %s", e.getMessage()), 3);
+            String.format("SiteMapSpider timed out after %f seconds", time), 1);
+          return this.SiteMap.getSize();
         }
-        LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-          String.format("SiteMapSpider timed out after %f seconds", time), 1);
-        return this.SiteMap.getSize();
       }
-    }while(this.hasURLsToVisit()&& SiteMap.getSize() < 
+    }while(this.hasURLsToVisit() || SiteMap.getSize() < 
       MaxPages-RunningLegs.size()-WaitingLegs.size());
     this.TimeoutTimer.Start();
     while(!RunningLegs.isEmpty()){
@@ -221,6 +228,16 @@ public class SiteMapSpider extends WebSpider{
             String.format("Spider's sleep interrupted: %s",ie.getMessage()));
         }
         return;
+      case -2:
+        LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(),
+          String.format("Only 1 leg running,sleep to give it time to finish"));
+        try{
+          Thread.sleep(30000);
+        }catch(InterruptedException ie){
+          LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(),
+            String.format("Spider's sleep interrupted: %s",ie.getMessage()));
+        }
+        return;
       default:
         return;
     }
@@ -235,7 +252,8 @@ public class SiteMapSpider extends WebSpider{
    *  @return A decision about how to proceed based on current conditions. 
    *          Possible options are:
    *            0 - Crawl is over, return, 1 - Make leg from currentURL, 
-   *            2 - Add WaitingLegsToRunningLegs, 3 - Must wait, sleep for a bit  
+   *            2 - Make leg from Paramurl,3 - Move WaitingLegs to RunningLegs
+   *            4 - sleep for AverageTimePerLeg to give legs time to add urls
    */
   protected int   DecisionTree(String currentUrl){
     if(currentUrl != null){ //  {I}
@@ -248,21 +266,20 @@ public class SiteMapSpider extends WebSpider{
         if(!RunningLegs.isEmpty()){             //  [1]
           if(RunningLegs.size() < MaxLegs){         //  (a)
             if(!WaitingLegs.isEmpty()){                 //  (i)
-              return 2; /* Move WaitingLegs to RunningLegs */
+              return 3; /* Move WaitingLegs to RunningLegs */
             }else{                                      //  (ii)
-              return 3;/*Sleep for AverageTimePerLeg,give legs time to add url*/
+              return 4;/*Sleep for AverageTimePerLeg,give legs time to add url*/
             }
           }else{                                    //  (b)
-            return 3;/*Sleep for AverageTimePerLeg,give legs time to add url*/
+            return 4;/*Sleep for AverageTimePerLeg,give legs time to add url*/
           }
         }else if(!WaitingLegs.isEmpty()){       //  [2]
-          return 2; /* Move WaitingLegs to RunningLegs */
+          return 3; /* Move WaitingLegs to RunningLegs */
         }else{                                  //  [3]  
           return 0; /* No more to be done, Crawl is finished */
         }
       }else{                                //  [B]
-        currentUrl = this.Url;
-        return 1; /*  Make new leg from currentUrl */
+        return 2; /*  Make new leg from currentUrl */
       }
     }
   }

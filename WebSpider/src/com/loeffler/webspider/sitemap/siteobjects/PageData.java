@@ -18,6 +18,11 @@ public class PageData {
   public String           Url;
   public List<Hyperlink>  HRefs;
   public int              PageID;
+  
+  /**
+   * Default Constructor
+   */
+  public PageData(){Url="";HRefs = new ArrayList<>();PageID=-1;}
   /**
    * Parameterized Constructor
    * @param Url       The URL of the Webpage
@@ -32,10 +37,7 @@ public class PageData {
     }
     this.PageID = PageID;
   }
-  /**
-   * Default Constructor
-   */
-  public PageData(){}
+  
   /**
    * Returns the PageData containing the href data as a single string, with 
    *  component parts delimited by a "|" and each link delimited by a "\t"

@@ -48,7 +48,7 @@ public class SiteMap {
   
   public int  addPage(PageData page){
     try{
-      Integer i = new Integer(NextID);
+      Integer i = NextID;
       page.PageID = NextID;
       NextID++;
       this.WebsiteMap.put(i, page);
@@ -81,8 +81,7 @@ public class SiteMap {
     }else{
       outfile = new File("SiteMap.csv");
     }
-    try(BufferedWriter bw = new BufferedWriter(
-                                            new FileWriter(outfile,append))){
+    try(BufferedWriter bw = new BufferedWriter(new FileWriter(outfile,append))){
       if(!append){
         bw.write("SOURCE|TARGET|ALT_TEXT|ANCHOR|RESPONSE_CODE|STATUS|DO_FOLLOW");
         bw.newLine();

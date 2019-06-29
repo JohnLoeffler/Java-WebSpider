@@ -87,16 +87,16 @@ public class SiteMap {
         bw.newLine();
       }
       StringBuilder sb = new StringBuilder();
-      try{
-        for(int i =0; i < WebsiteMap.size(); i++){
+      for(int i =0; i < WebsiteMap.size(); i++){
+        try{
           PageData pd = ((PageData[]) WebsiteMap.values().toArray())[i];
           lines += pd.HRefs.size();
           bw.write(pd.toString());
+        }catch(Exception ex){
+          LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+            String.format("Threw Exception trying to converting HashMap value"
+            + " to PageData"), 1);
         }
-      }catch(Exception e){
-        LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-          String.format("Exception thrown when covering hashmap to PageData "
-          + "Array to print values: %s", e.getMessage()), 2);
       }
     }catch(IOException ioe){
       //  TODO Add a log message to this IOException 

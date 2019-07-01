@@ -117,23 +117,23 @@ public class SiteMapSpider extends WebSpider{
             choice, e.getMessage()), 5);
       }  
         
-//      //  If SiteMapSpider has timed out
-//      if(this.TimeoutTimer.isActive()){
-//        if(this.hasTimedOut()){
-//          double time = ((double)TimeoutTimer.Elapsed())/1000.0;
-//          try{
-//            //  Try to Shutdown the Spider properly
-//            this.ShutdownSpider();
-//          }catch(Exception e){
-//            LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-//              String.format("Exception thrown while attempting to properly "
-//              + "shutdown spider: %s", e.getMessage()), 3);
-//          }
-//          LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-//            String.format("SiteMapSpider timed out after %f seconds", time), 1);
-//          return this.SiteMap.getSize();
-//        }
-//      }
+      //  If SiteMapSpider has timed out
+      if(this.TimeoutTimer.isActive()){
+        if(this.hasTimedOut()){
+          double time = ((double)TimeoutTimer.Elapsed())/1000.0;
+          try{
+            //  Try to Shutdown the Spider properly
+            this.ShutdownSpider();
+          }catch(Exception e){
+            LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+              String.format("Exception thrown while attempting to properly "
+              + "shutdown spider: %s", e.getMessage()), 3);
+          }
+          LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+            String.format("SiteMapSpider timed out after %f seconds", time), 1);
+          return this.SiteMap.getSize();
+        }
+      }
     }while(this.hasURLsToVisit() || SiteMap.getSize() < 
       MaxPages-RunningLegs.size()-WaitingLegs.size());
     this.TimeoutTimer.Start();

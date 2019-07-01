@@ -33,7 +33,7 @@ public abstract class WebSpider {
   volatile  protected long    AverageTimePerLeg;
   protected List<String>      PagesVisited, PagesToVisit;       
   protected List<WebSpiderLeg>RunningLegs, WaitingLegs;
-  protected boolean           bInitialized;
+  protected boolean           bInitialized, bPaused;
   protected String            Url;
   protected Timer             TimeoutTimer;
   
@@ -50,6 +50,7 @@ public abstract class WebSpider {
     this.MaxLegs            = 0;
     this.MaxPages           = 0;
     this.bInitialized       = false;
+    this.bPaused            = false;
     this.Url                = "";
     this.LegsSpawned        = 0;
     this.AverageTimePerLeg  = 1;
@@ -174,6 +175,11 @@ public abstract class WebSpider {
    */
   public boolean              isInitialized(){return bInitialized;}
   /**
+   * Used in multithreaded context to pause the spider thread if necessary
+   * @return True if the spider is paused, false otherwise
+   */
+  public boolean              isPaused(){return bPaused;}
+  /**
    * Method that saves urls held by legs in lists, clears the legs lists, 
    *  and prints url lists to file, calling the systems garbage collector when
    *  finished. 
@@ -254,6 +260,8 @@ public abstract class WebSpider {
    *            list to finish before trying to run more more legs (-1)
    */
   protected int               AddLeg(WebSpiderLeg wsl){
+    LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+      String.format("Adding %s to Legs...", wsl.GetURL()), 1);
     try{
       //  Add new leg to back of the waiting queue
       this.WaitingLegs.add(wsl);
@@ -265,12 +273,13 @@ public abstract class WebSpider {
       if(this.WaitingLegs.size() >= (this.MaxLegs*3)){
         LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(),
           String.format("WaitingLegs exceeding Thread Buffer; signalling to wait "
-            + "for %f milliseconds", AverageTimePerLeg), 1);
+            + "for %d milliseconds", AverageTimePerLeg), 1);
         return -1;
       }
       if(this.RunningLegs.size() == 1 && this.WaitingLegs.size() == 0){
         return -2;
       }
+      this.PagesVisited.add(wsl.GetURL());
       return 0;
     }catch(Exception e){
       LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(),

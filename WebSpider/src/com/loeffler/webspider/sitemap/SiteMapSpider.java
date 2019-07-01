@@ -7,6 +7,9 @@ import com.loeffler.webspider.WebSpiderLeg;
 import com.loeffler.webspider.sitemap.siteobjects.Hyperlink;
 import com.loeffler.webspider.sitemap.siteobjects.PageData;
 import com.loeffler.webspider.sitemap.siteobjects.SiteMap;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *  <p><strong>SiteMapSpider</strong></p>
@@ -95,12 +98,12 @@ public class SiteMapSpider extends WebSpider{
             MakeLegFromUrl(url, DomainUrl);
             break;
           case 3:
-            if(!TimeoutTimer.isActive()){ TimeoutTimer.Start(); }
+            if(TimeoutTimer.isActive()){ TimeoutTimer.Stop(); }
             MoveWaitingLegsToRunningLegs();
             break;
           case 4:
             if(!TimeoutTimer.isActive()){ TimeoutTimer.Start(); }
-            Thread.sleep(AverageTimePerLeg);
+            Thread.sleep(this.TimeoutLimit/2);
             break;
           case 0:
           default:
@@ -114,23 +117,23 @@ public class SiteMapSpider extends WebSpider{
             choice, e.getMessage()), 5);
       }  
         
-      //  If SiteMapSpider has timed out
-      if(this.TimeoutTimer.isActive()){
-        if(this.hasTimedOut()){
-          double time = ((double)TimeoutTimer.Elapsed())/1000.0;
-          try{
-            //  Try to Shutdown the Spider properly
-            this.ShutdownSpider();
-          }catch(Exception e){
-            LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-              String.format("Exception thrown while attempting to properly "
-              + "shutdown spider: %s", e.getMessage()), 3);
-          }
-          LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
-            String.format("SiteMapSpider timed out after %f seconds", time), 1);
-          return this.SiteMap.getSize();
-        }
-      }
+//      //  If SiteMapSpider has timed out
+//      if(this.TimeoutTimer.isActive()){
+//        if(this.hasTimedOut()){
+//          double time = ((double)TimeoutTimer.Elapsed())/1000.0;
+//          try{
+//            //  Try to Shutdown the Spider properly
+//            this.ShutdownSpider();
+//          }catch(Exception e){
+//            LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+//              String.format("Exception thrown while attempting to properly "
+//              + "shutdown spider: %s", e.getMessage()), 3);
+//          }
+//          LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
+//            String.format("SiteMapSpider timed out after %f seconds", time), 1);
+//          return this.SiteMap.getSize();
+//        }
+//      }
     }while(this.hasURLsToVisit() || SiteMap.getSize() < 
       MaxPages-RunningLegs.size()-WaitingLegs.size());
     this.TimeoutTimer.Start();

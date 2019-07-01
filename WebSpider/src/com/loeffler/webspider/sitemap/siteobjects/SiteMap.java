@@ -89,13 +89,13 @@ public class SiteMap {
       StringBuilder sb = new StringBuilder();
       for(int i =0; i < WebsiteMap.size(); i++){
         try{
-          PageData pd = ((PageData[]) WebsiteMap.values().toArray())[i];
+          PageData pd = WebsiteMap.get(i);
           lines += pd.HRefs.size();
           bw.write(pd.toString());
         }catch(Exception ex){
           LOG.Log(Statics.Class(), Statics.Method(), Statics.Line(), 
             String.format("Threw Exception trying to converting HashMap value"
-            + " to PageData"), 1);
+            + " to PageData: %s", ex.getMessage()), 1);
         }
       }
     }catch(IOException ioe){
